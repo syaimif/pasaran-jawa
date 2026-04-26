@@ -6,683 +6,809 @@
 <meta name="description" content="Kalender Pasaran Jawa - Weton, Geblak, dan integrasi Google Kalender"/>
 <meta name="theme-color" content="#854F0B"/>
 <title>Pasaran Jawa</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#F5F0E8;min-height:100vh;padding-bottom:72px;color:#1a1209;}
-:root{
-  --al:#FAEEDA;--am:#EF9F27;--ad:#854F0B;--ax:#633806;
-  --tl:#E1F5EE;--td:#0F6E56;
-  --sf:#FFFFFF;--sf2:#F8F4ED;--br:#E8E0D0;
-  --t:#1a1209;--t2:#5a4e3a;--t3:#8a7d6a;
-  --gb:#1a73e8;--gbh:#1557b0;
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:#F5F0E8;min-height:100vh;padding-bottom:72px;color:#1a1209;
 }
-.app{max-width:430px;margin:0 auto;background:var(--sf);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,0.08)}
+:root{
+  --amber-light:#FAEEDA;--amber-mid:#EF9F27;--amber-dark:#854F0B;--amber-xdark:#633806;
+  --teal-light:#E1F5EE;--teal-dark:#0F6E56;
+  --surface:#FFFFFF;--surface2:#F8F4ED;--border:#E8E0D0;
+  --text:#1a1209;--text2:#5a4e3a;--text3:#8a7d6a;
+  --pas-pon:#BA7517;--pas-wage:#3B6D11;--pas-kliwon:#993556;
+  --pas-legi:#185FA5;--pas-pahing:#993C1D;
+}
+.app{max-width:430px;margin:0 auto;background:var(--surface);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,0.08)}
 
 /* HEADER */
-.hdr{padding:14px 16px 12px;border-bottom:1px solid var(--br);background:var(--sf);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;}
-.logo{width:40px;height:40px;background:var(--al);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid rgba(133,79,11,0.15);}
-.ht{font-size:16px;font-weight:600;color:var(--ax);letter-spacing:-0.2px}
-.hs{font-size:11px;color:var(--t3);margin-top:1px}
-.hr{margin-left:auto;display:flex;align-items:center;gap:8px}
-.auth-pill{display:flex;align-items:center;gap:6px;border:1px solid var(--br);border-radius:20px;padding:5px 10px;font-size:11px;cursor:pointer;background:var(--sf2);color:var(--t2);white-space:nowrap;transition:background .1s;}
-.auth-pill:hover{background:var(--br)}
-.auth-pill.on{background:#e6f4ea;border-color:#a8d5b5;color:#1e7e34;cursor:default}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--t3);flex-shrink:0}
-.auth-pill.on .dot{background:#1e7e34}
-.sbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--br);background:var(--sf2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3);}
-.sbtn:hover{background:var(--br)}
+.header{
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  background:var(--surface);display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:20;
+}
+.logo-wrap{
+  width:40px;height:40px;background:var(--amber-light);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;border:1px solid rgba(133,79,11,0.15);
+}
+.h-title{font-size:16px;font-weight:600;color:var(--amber-xdark);letter-spacing:-0.2px}
+.h-sub{font-size:11px;color:var(--text3);margin-top:1px}
 
 /* TABS */
-.tabs{display:flex;background:var(--sf);border-bottom:1px solid var(--br);position:sticky;top:68px;z-index:19;overflow-x:auto;scrollbar-width:none;}
+.tabs{
+  display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:68px;z-index:19;overflow-x:auto;scrollbar-width:none;
+}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:10px 14px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:400;color:var(--t3);border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab.active{font-weight:600;color:var(--ad);border-bottom-color:var(--am)}
+.tab{
+  flex:0 0 auto;padding:10px 14px;border:none;background:none;cursor:pointer;
+  font-size:12px;font-weight:400;color:var(--text3);
+  border-bottom:2.5px solid transparent;white-space:nowrap;
+  transition:color 0.15s,border-color 0.15s;
+}
+.tab.active{font-weight:600;color:var(--amber-dark);border-bottom-color:var(--amber-mid)}
 
 /* CONTENT */
 .content{display:none;padding:16px}
 .content.active{display:block}
 
 /* WETON CARD */
-.wcard{background:var(--al);border-radius:16px;padding:20px 16px;text-align:center;margin-bottom:14px;border:1px solid rgba(133,79,11,0.12);position:relative;overflow:hidden;}
-.wcard::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(133,79,11,0.06);}
-.wlbl{font-size:12px;color:var(--ad);margin-bottom:6px;font-weight:500;letter-spacing:.3px}
-.wmain{font-size:28px;font-weight:700;color:var(--ad);margin-bottom:4px;letter-spacing:-.5px}
-.wsub{font-size:13px;color:var(--ax);opacity:.75}
+.weton-card{
+  background:var(--amber-light);border-radius:16px;padding:20px 16px;
+  text-align:center;margin-bottom:14px;border:1px solid rgba(133,79,11,0.12);
+  position:relative;overflow:hidden;
+}
+.weton-card::before{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;background:rgba(133,79,11,0.06);
+}
+.wc-label{font-size:12px;color:var(--amber-dark);margin-bottom:6px;font-weight:500;letter-spacing:0.3px}
+.wc-main{font-size:28px;font-weight:700;color:var(--amber-dark);margin-bottom:4px;letter-spacing:-0.5px}
+.wc-sub{font-size:13px;color:var(--amber-xdark);opacity:0.75}
 
-/* METRIC */
-.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
-.met{background:var(--sf2);border-radius:10px;padding:11px 13px;border:1px solid var(--br)}
-.mlbl{font-size:10px;color:var(--t3);letter-spacing:.5px;font-weight:500;margin-bottom:3px}
-.mval{font-size:14px;font-weight:600;color:var(--t)}
-.irow{background:var(--sf2);border-radius:10px;padding:11px 14px;margin-bottom:10px;border:1px solid var(--br)}
-.ilbl{font-size:10px;color:var(--t3);letter-spacing:.5px;font-weight:500;margin-bottom:2px}
-.ival{font-size:14px;font-weight:500;color:var(--t)}
+/* GRID */
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.metric{background:var(--surface2);border-radius:10px;padding:11px 13px;border:1px solid var(--border)}
+.metric-label{font-size:10px;color:var(--text3);letter-spacing:0.5px;font-weight:500;margin-bottom:3px}
+.metric-val{font-size:14px;font-weight:600;color:var(--text)}
+.info-row{background:var(--surface2);border-radius:10px;padding:11px 14px;margin-bottom:10px;border:1px solid var(--border)}
+.info-label{font-size:10px;color:var(--text3);letter-spacing:0.5px;font-weight:500;margin-bottom:2px}
+.info-val{font-size:14px;font-weight:500;color:var(--text)}
 
 /* MALEM */
-.malem{background:linear-gradient(135deg,#1a1a3e,#2d2d5a);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:#c8c8f0;display:none;align-items:center;gap:7px;border:1px solid rgba(100,100,200,0.2);}
-.malem.show{display:flex}
+.malem-badge{
+  background:linear-gradient(135deg,#1a1a3e,#2d2d5a);border-radius:10px;
+  padding:9px 13px;margin-bottom:12px;font-size:12px;color:#c8c8f0;
+  display:none;align-items:center;gap:7px;border:1px solid rgba(100,100,200,0.2);
+}
+.malem-badge.show{display:flex}
 
 /* DIVIDER */
-hr{border:none;border-top:1px solid var(--br);margin:14px 0}
-.sec{font-size:12px;font-weight:600;color:var(--t);margin-bottom:10px}
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.sec-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px}
 
 /* FORM */
-.flbl{font-size:11px;color:var(--t3);letter-spacing:.3px;font-weight:500;display:block;margin-bottom:5px}
-.inp{width:100%;border:1px solid var(--br);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--t);background:var(--sf);margin-bottom:9px;outline:none;font-family:inherit;transition:border-color .15s;}
-.inp:focus{border-color:var(--am)}
-select.inp{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a4e3a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.field-label{font-size:11px;color:var(--text3);letter-spacing:0.3px;font-weight:500;display:block;margin-bottom:5px}
+.input{
+  width:100%;border:1px solid var(--border);border-radius:9px;
+  padding:9px 12px;font-size:14px;color:var(--text);background:var(--surface);
+  margin-bottom:9px;outline:none;font-family:inherit;transition:border-color 0.15s;
+}
+.input:focus{border-color:var(--amber-mid)}
+select.input{
+  cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a4e3a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
 
 /* BUTTONS */
-.btn{width:100%;border:1px solid var(--br);border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;background:var(--sf);color:var(--t);font-family:inherit;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn:hover{background:var(--sf2)}
-.btn:active{transform:scale(.98)}
-.btn.prim{background:var(--al);color:var(--ax);border-color:rgba(133,79,11,0.25)}
-.btn.prim:hover{background:#f0e0b8}
-.bsm{border:1px solid var(--br);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;background:var(--sf);color:var(--t);font-family:inherit;transition:background .1s;}
-.bsm:hover{background:var(--sf2)}
-.bgoog{width:100%;border:none;border-radius:9px;padding:11px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--gb);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,transform .1s;}
-.bgoog:hover{background:var(--gbh)}
-.bgoog:active{transform:scale(.98)}
-.bgoog:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.bgoog-sm{display:inline-flex;align-items:center;gap:4px;background:var(--gb);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background .1s;}
-.bgoog-sm:hover{background:var(--gbh)}
+.btn{
+  width:100%;border:1px solid var(--border);border-radius:9px;
+  padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;
+  background:var(--surface);color:var(--text);font-family:inherit;
+  transition:background 0.15s,transform 0.1s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn:hover{background:var(--surface2)}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--amber-light);color:var(--amber-xdark);border-color:rgba(133,79,11,0.25)}
+.btn-primary:hover{background:#f0e0b8}
+.btn-sm{
+  border:1px solid var(--border);border-radius:7px;padding:6px 12px;
+  font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);
+  color:var(--text);font-family:inherit;transition:background 0.1s;
+}
+.btn-sm:hover{background:var(--surface2)}
+.btn-gcal{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#1a73e8;color:#fff;border:none;border-radius:8px;
+  padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:background 0.15s,transform 0.1s;
+  text-decoration:none;width:100%;justify-content:center;
+}
+.btn-gcal:hover{background:#1557b0}
+.btn-gcal:active{transform:scale(0.98)}
+.btn-gcal-sm{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#1a73e8;color:#fff;border:none;border-radius:7px;
+  padding:5px 10px;font-size:12px;font-weight:500;cursor:pointer;
+  font-family:inherit;text-decoration:none;
+  transition:background 0.1s;white-space:nowrap;flex-shrink:0;
+}
+.btn-gcal-sm:hover{background:#1557b0}
 
-/* PROGRESS BOX */
-.pbox{border:1px solid var(--br);border-radius:10px;overflow:hidden;margin-top:10px;display:none;}
-.pbox.show{display:block}
-.phdr{padding:9px 13px;background:var(--sf2);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;}
-.ptitle{font-size:12px;font-weight:600;color:var(--t)}
-.pcnt{font-size:12px;color:var(--t3)}
-.pbar-wrap{height:4px;background:var(--br)}
-.pbar{height:4px;background:var(--gb);transition:width .3s;width:0}
-.plist{max-height:220px;overflow-y:auto}
-.pitem{display:flex;align-items:center;gap:9px;padding:8px 13px;border-bottom:1px solid var(--br);font-size:12px;}
-.pitem:last-child{border-bottom:none}
-.pico{font-size:14px;flex-shrink:0;width:18px;text-align:center}
-.pname{flex:1;color:var(--t);font-weight:500}
-.pstat{font-size:11px;color:var(--t3);flex-shrink:0}
-.psum{padding:10px 13px;background:var(--sf2);font-size:12px;font-weight:600;display:none;}
-.psum.show{display:block}
+/* HINT BOX */
+.gcal-hint{
+  background:#e8f0fe;border:1px solid #c5d6fb;border-radius:9px;
+  padding:9px 12px;margin-bottom:9px;font-size:12px;color:#1557b0;
+  display:flex;align-items:flex-start;gap:7px;line-height:1.5;
+}
 
 /* CALENDAR */
-.cnav{display:flex;align-items:center;justify-content:space-between;padding:0 2px;margin-bottom:12px}
-.cnb{width:36px;height:36px;border:1px solid var(--br);border-radius:8px;cursor:pointer;background:var(--sf);font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t);transition:background .1s;}
-.cnb:hover{background:var(--sf2)}
-.cml{font-weight:600;font-size:15px;color:var(--t)}
-.chdr{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
-.chdrc{text-align:center;font-size:10px;color:var(--t3);font-weight:600;padding:3px 0;letter-spacing:.3px}
-.cgrd{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.cc{text-align:center;padding:5px 1px 4px;border-radius:8px;cursor:pointer;transition:background .1s;min-height:40px;}
-.cc:hover{background:var(--sf2)}
-.cc.today{background:var(--al);border:1px solid rgba(133,79,11,0.2)}
-.cn{font-size:12px;color:var(--t);line-height:1.3;font-weight:400}
-.cn.tn{font-weight:700;color:var(--ad)}
-.cp{font-size:9px;font-weight:600;line-height:1.3;margin-top:1px}
-.leg{margin-top:14px;padding-top:12px;border-top:1px solid var(--br)}
-.legtitle{font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.5px;margin-bottom:7px}
-.legwrap{display:flex;flex-wrap:wrap;gap:5px}
-.legpill{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--sf2);font-weight:600;border:1px solid var(--br)}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:0 2px;margin-bottom:12px}
+.cal-nav-btn{
+  width:36px;height:36px;border:1px solid var(--border);border-radius:8px;
+  cursor:pointer;background:var(--surface);font-size:16px;
+  display:flex;align-items:center;justify-content:center;color:var(--text);transition:background 0.1s;
+}
+.cal-nav-btn:hover{background:var(--surface2)}
+.cal-month{font-weight:600;font-size:15px;color:var(--text)}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.cal-hdr-cell{text-align:center;font-size:10px;color:var(--text3);font-weight:600;padding:3px 0;letter-spacing:0.3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-cell{
+  text-align:center;padding:5px 1px 4px;border-radius:8px;
+  cursor:pointer;transition:background 0.1s;min-height:40px;
+}
+.cal-cell:hover{background:var(--surface2)}
+.cal-cell.today{background:var(--amber-light);border:1px solid rgba(133,79,11,0.2)}
+.cal-num{font-size:12px;color:var(--text);line-height:1.3;font-weight:400}
+.cal-num.today-num{font-weight:700;color:var(--amber-dark)}
+.cal-pas{font-size:9px;font-weight:600;line-height:1.3;margin-top:1px}
+.legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.legend-title{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.5px;margin-bottom:7px}
+.legend-wrap{display:flex;flex-wrap:wrap;gap:5px}
+.legend-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface2);font-weight:600;border:1px solid var(--border)}
 
-/* SEARCH */
-.rhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-.rcnt{font-size:13px;font-weight:600;color:var(--t)}
-.rlist{border:1px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:12px;max-height:260px;overflow-y:auto}
-.ritem{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;cursor:pointer;border-bottom:1px solid var(--br);transition:background .1s;}
-.ritem:last-child{border-bottom:none}
-.ritem:hover{background:var(--sf2)}
-.ritem.sel{background:var(--al)}
-.rdate{font-size:13px;font-weight:500;color:var(--t)}
-.rweton{font-size:11px;font-weight:600;margin-top:2px}
-.chk{width:20px;height:20px;border-radius:5px;flex-shrink:0;border:1.5px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .1s;}
-.chk.on{background:var(--ad);border-color:var(--ad);color:#fff}
+/* SEARCH RESULTS */
+.results-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.results-count{font-size:13px;font-weight:600;color:var(--text)}
+.results-list{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;max-height:260px;overflow-y:auto}
+.result-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s;
+}
+.result-item:last-child{border-bottom:none}
+.result-item:hover{background:var(--surface2)}
+.result-item.sel{background:var(--amber-light)}
+.r-date{font-size:13px;font-weight:500;color:var(--text)}
+.r-weton{font-size:11px;font-weight:600;margin-top:2px}
+.checkbox{
+  width:20px;height:20px;border-radius:5px;flex-shrink:0;
+  border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:11px;transition:all 0.1s;
+}
+.checkbox.chk{background:var(--amber-dark);border-color:var(--amber-dark);color:#fff}
 
 /* GEBLAK */
-.gcard{border:1px solid var(--br);border-radius:12px;overflow:hidden;margin-bottom:14px}
-.grow{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--br);}
-.grow:last-child{border-bottom:none}
-.grow.gh{background:var(--al)}
-.gl{flex:1;min-width:0}
-.gname{font-size:13px;font-weight:500;color:var(--t)}
-.gh .gname{font-weight:700;color:var(--ax)}
-.gdays{font-size:11px;color:var(--t3);margin-top:1px}
-.gr{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.gdt{font-size:12px;font-weight:600;color:var(--t);text-align:right}
-.gwt{font-size:11px;font-weight:700;text-align:right;margin-top:1px}
+.geblak-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.geblak-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 13px;border-bottom:1px solid var(--border);
+}
+.geblak-row:last-child{border-bottom:none}
+.geblak-row.g-head{background:var(--amber-light)}
+.geblak-left{flex:1;min-width:0}
+.geblak-name{font-size:13px;font-weight:500;color:var(--text)}
+.g-head .geblak-name{font-weight:700;color:var(--amber-xdark)}
+.geblak-days{font-size:11px;color:var(--text3);margin-top:1px}
+.geblak-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.geblak-date{font-size:12px;font-weight:600;color:var(--text);text-align:right}
+.geblak-weton{font-size:11px;font-weight:700;text-align:right;margin-top:1px}
 
-/* MODAL */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:flex-end;justify-content:center;}
-.moverlay.show{display:flex}
-.msheet{background:var(--sf);border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:su .28s ease;}
-@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mhead{padding:16px 16px 12px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.mtitle{font-size:15px;font-weight:600;color:var(--t)}
-.mclose{width:30px;height:30px;border-radius:50%;border:1px solid var(--br);background:var(--sf2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3);}
-.mbody{padding:16px;overflow-y:auto;flex:1}
-.sgrp{margin-bottom:16px}
-.sgt{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.5px;margin-bottom:8px}
-.sinp{width:100%;border:1px solid var(--br);border-radius:9px;padding:9px 12px;font-size:13px;color:var(--t);background:var(--sf);outline:none;font-family:monospace;margin-bottom:6px;}
-.sinp:focus{border-color:var(--gb)}
-.shint{font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:8px}
-.shint a{color:var(--gb);text-decoration:none}
-.shint a:hover{text-decoration:underline}
-.sstep{background:var(--sf2);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:11px;color:var(--t2);line-height:1.7;}
-.sstep strong{color:var(--t);font-weight:600}
-code{background:var(--br);border-radius:3px;padding:1px 5px;font-family:monospace;font-size:10px}
+/* MODAL OVERLAY */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal-sheet{
+  background:var(--surface);border-radius:20px 20px 0 0;
+  width:100%;max-width:430px;max-height:85vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:slideUp 0.28s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-head{
+  padding:16px 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface2);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;color:var(--text3);
+}
+.modal-body{padding:12px 16px 24px;overflow-y:auto;flex:1}
+.modal-hint{
+  background:#e8f0fe;border:1px solid #c5d6fb;border-radius:9px;
+  padding:9px 12px;margin-bottom:12px;font-size:12px;color:#1557b0;
+  display:flex;align-items:flex-start;gap:7px;line-height:1.5;
+}
+.modal-event-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.modal-event-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:10px 13px;background:var(--surface2);
+  border-radius:9px;border:1px solid var(--border);
+}
+.mev-info{flex:1;min-width:0}
+.mev-title{font-size:13px;font-weight:500;color:var(--text)}
+.mev-date{font-size:11px;color:var(--text3);margin-top:2px}
+.mev-weton{font-size:11px;font-weight:700;margin-top:1px}
+.modal-open-all{margin-top:4px}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- HEADER -->
-<div class="hdr">
-  <div class="logo">☽</div>
-  <div><div class="ht">Pasaran Jawa</div><div class="hs">Weton · Geblak · Google Kalender</div></div>
-  <div class="hr">
-    <div class="auth-pill" id="auth-pill" onclick="handleAuthClick()">
-      <div class="dot"></div><span id="auth-txt">Login Google</span>
-    </div>
-    <button class="sbtn" onclick="openSettings()" title="Pengaturan">⚙️</button>
-  </div>
-</div>
-
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('hi',this)">Hari Ini</button>
-  <button class="tab" onclick="switchTab('kal',this)">Kalender</button>
-  <button class="tab" onclick="switchTab('cari',this)">Cari Pasaran</button>
-  <button class="tab" onclick="switchTab('weton',this)">Weton</button>
-  <button class="tab" onclick="switchTab('geblak',this)">Geblak</button>
-</div>
-
-<!-- TAB: HARI INI -->
-<div id="tab-hi" class="content active">
-  <div id="malem" class="malem"><span style="font-size:16px">☾</span><span>Wis Maghrib — iki wis malem (hari Jawa berikutnya dimulai)</span></div>
-  <div class="wcard">
-    <div class="wlbl" id="t-lbl">Hari ini</div>
-    <div class="wmain" id="t-weton">—</div>
-    <div class="wsub" id="t-wuku">Wuku: —</div>
-  </div>
-  <div class="g2">
-    <div class="met"><div class="mlbl">HARI MASEHI</div><div class="mval" id="t-hari">—</div></div>
-    <div class="met"><div class="mlbl">PASARAN</div><div class="mval" id="t-pas">—</div></div>
-  </div>
-  <div class="irow"><div class="ilbl">TANGGAL LENGKAP</div><div class="ival" id="t-tgl">—</div></div>
-  <hr/>
-  <div class="sec">Tambah ke Google Kalender</div>
-  <label class="flbl">NAMA EVENT</label>
-  <input class="inp" id="ev1" type="text" value="Rapat RT" placeholder="Nama event..."/>
-  <button class="bgoog" onclick="addHariIni()"><span>📅</span><span>Tambah ke Google Kalender</span></button>
-  <div class="pbox" id="pb-hi"><div class="plist" id="pl-hi"></div></div>
-</div>
-
-<!-- TAB: KALENDER -->
-<div id="tab-kal" class="content" style="padding:12px 10px">
-  <div class="cnav">
-    <button class="cnb" onclick="calPrev()">←</button>
-    <span class="cml" id="cal-lbl">—</span>
-    <button class="cnb" onclick="calNext()">→</button>
-  </div>
-  <div class="chdr">
-    <div class="chdrc">Min</div><div class="chdrc">Sen</div><div class="chdrc">Sel</div>
-    <div class="chdrc">Rab</div><div class="chdrc">Kam</div><div class="chdrc">Jum</div><div class="chdrc">Sab</div>
-  </div>
-  <div class="cgrd" id="cal-grid"></div>
-  <div class="leg"><div class="legtitle">WARNA PASARAN</div><div class="legwrap" id="leg"></div></div>
-  <div class="pbox" id="pb-kal" style="margin-top:12px"><div class="plist" id="pl-kal"></div></div>
-</div>
-
-<!-- TAB: CARI PASARAN -->
-<div id="tab-cari" class="content">
-  <div style="font-size:13px;color:var(--t3);margin-bottom:14px;line-height:1.6">Cari semua tanggal dengan kombinasi hari + pasaran tertentu dalam setahun, lalu tambahkan ke Google Kalender sekaligus tanpa buka tab satu per satu.</div>
-  <div class="g2">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-wrap">☽</div>
     <div>
-      <label class="flbl">HARI JAWA</label>
-      <select class="inp" id="s-day">
-        <option value="minggu">Minggu</option><option value="senen">Senen</option>
-        <option value="seloso" selected>Seloso</option><option value="rebo">Rebo</option>
-        <option value="kemis">Kemis</option><option value="jemuwah">Jemuwah</option><option value="septu">Septu</option>
-      </select>
-    </div>
-    <div>
-      <label class="flbl">PASARAN</label>
-      <select class="inp" id="s-pas">
-        <option value="pon">Pon</option><option value="wage">Wage</option>
-        <option value="kliwon" selected>Kliwon</option><option value="legi">Legi</option><option value="pahing">Pahing</option>
-      </select>
+      <div class="h-title">Pasaran Jawa</div>
+      <div class="h-sub">Weton · Geblak · Google Kalender</div>
     </div>
   </div>
-  <label class="flbl">TAHUN</label>
-  <input class="inp" id="s-year" type="number" value="2025"/>
-  <button class="btn prim" onclick="doSearch()" style="margin-bottom:16px"><span>🔍</span><span>Cari Tanggal</span></button>
 
-  <div id="s-results" style="display:none">
-    <div class="rhdr">
-      <span class="rcnt" id="r-cnt">0 tanggal</span>
-      <button class="bsm" onclick="selAll()">Pilih Semua</button>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('hari-ini',this)">Hari Ini</button>
+    <button class="tab" onclick="switchTab('kalender',this)">Kalender</button>
+    <button class="tab" onclick="switchTab('cari',this)">Cari Pasaran</button>
+    <button class="tab" onclick="switchTab('weton',this)">Weton</button>
+    <button class="tab" onclick="switchTab('geblak',this)">Geblak</button>
+  </div>
+
+  <!-- ==================== TAB: HARI INI ==================== -->
+  <div id="tab-hari-ini" class="content active">
+    <div id="malem-badge" class="malem-badge">
+      <span style="font-size:16px">☾</span>
+      <span>Wis Maghrib — iki wis malem (hari Jawa berikutnya dimulai)</span>
     </div>
-    <div class="rlist" id="r-list"></div>
-    <div id="bulk-area" style="display:none">
-      <label class="flbl">NAMA EVENT</label>
-      <input class="inp" id="ev2" type="text" value="Rapat RT" placeholder="Nama event..."/>
-      <button class="bgoog" id="bulk-btn" onclick="addBulk()">
-        <span>📅</span><span id="bulk-txt">Tambah Semua Langsung ke Kalender</span>
-      </button>
-      <div class="pbox show" id="pb-cari">
-        <div class="phdr"><span class="ptitle" id="pt-cari">—</span><span class="pcnt" id="pc-cari"></span></div>
-        <div class="pbar-wrap"><div class="pbar" id="bar-cari"></div></div>
-        <div class="plist" id="pl-cari"></div>
-        <div class="psum" id="ps-cari"></div>
+    <div class="weton-card">
+      <div class="wc-label" id="today-label">Hari ini</div>
+      <div class="wc-main" id="today-weton">—</div>
+      <div class="wc-sub" id="today-wuku">Wuku: —</div>
+    </div>
+    <div class="grid2">
+      <div class="metric">
+        <div class="metric-label">HARI MASEHI</div>
+        <div class="metric-val" id="today-hari">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">PASARAN</div>
+        <div class="metric-val" id="today-pas">—</div>
+      </div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">TANGGAL LENGKAP</div>
+      <div class="info-val" id="today-tanggal">—</div>
+    </div>
+    <hr class="divider"/>
+    <div class="sec-title">Tambah ke Google Kalender</div>
+    <div class="gcal-hint">
+      <span>ℹ️</span>
+      <span>Tombol di bawah akan membuka Google Kalender di tab baru. Pastikan Anda sudah login ke akun Google.</span>
+    </div>
+    <label class="field-label">NAMA EVENT</label>
+    <input class="input" id="ev-title-1" type="text" value="Rapat RT" placeholder="Nama event..."/>
+    <a id="gcal-link-hari" href="#" target="_blank" rel="noopener" class="btn-gcal" onclick="openSingleGcal('ev-title-1','_todayIso','_todayWeton',event)">
+      <span>📅</span><span>Buka di Google Kalender</span>
+    </a>
+  </div>
+
+  <!-- ==================== TAB: KALENDER ==================== -->
+  <div id="tab-kalender" class="content" style="padding:12px 10px">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">←</button>
+      <span class="cal-month" id="cal-month-label">—</span>
+      <button class="cal-nav-btn" onclick="calNext()">→</button>
+    </div>
+    <div class="cal-hdr">
+      <div class="cal-hdr-cell">Min</div><div class="cal-hdr-cell">Sen</div>
+      <div class="cal-hdr-cell">Sel</div><div class="cal-hdr-cell">Rab</div>
+      <div class="cal-hdr-cell">Kam</div><div class="cal-hdr-cell">Jum</div>
+      <div class="cal-hdr-cell">Sab</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="legend">
+      <div class="legend-title">WARNA PASARAN</div>
+      <div class="legend-wrap" id="legend-items"></div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB: CARI PASARAN ==================== -->
+  <div id="tab-cari" class="content">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+      Cari semua tanggal dengan kombinasi hari + pasaran tertentu dalam setahun, lalu tambahkan ke Google Kalender.
+    </div>
+    <div class="grid2">
+      <div>
+        <label class="field-label">HARI JAWA</label>
+        <select class="input" id="search-day">
+          <option value="minggu">Minggu</option>
+          <option value="senen">Senen</option>
+          <option value="seloso" selected>Seloso</option>
+          <option value="rebo">Rebo</option>
+          <option value="kemis">Kemis</option>
+          <option value="jemuwah">Jemuwah</option>
+          <option value="septu">Septu</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">PASARAN</label>
+        <select class="input" id="search-pas">
+          <option value="pon">Pon</option>
+          <option value="wage">Wage</option>
+          <option value="kliwon" selected>Kliwon</option>
+          <option value="legi">Legi</option>
+          <option value="pahing">Pahing</option>
+        </select>
+      </div>
+    </div>
+    <label class="field-label">TAHUN</label>
+    <input class="input" id="search-year" type="number" value="2025"/>
+    <button class="btn btn-primary" onclick="doSearchPasaran()" style="margin-bottom:16px">
+      <span>🔍</span><span>Cari Tanggal</span>
+    </button>
+
+    <div id="search-results" style="display:none">
+      <div class="results-hdr">
+        <span class="results-count" id="results-count">0 tanggal</span>
+        <button class="btn-sm" onclick="selectAll()">Pilih Semua</button>
+      </div>
+      <div class="results-list" id="results-list"></div>
+      <div id="bulk-add-area" style="display:none">
+        <label class="field-label">NAMA EVENT</label>
+        <input class="input" id="ev-title-2" type="text" value="Rapat RT" placeholder="Nama event..."/>
+        <button class="btn btn-primary" id="bulk-btn" onclick="openBulkModal()">
+          <span>📅</span><span id="bulk-btn-text">Tambah ke Google Kalender</span>
+        </button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- TAB: WETON -->
-<div id="tab-weton" class="content">
-  <div style="font-size:13px;color:var(--t3);margin-bottom:14px;line-height:1.6">Cari hari pasaran (weton) untuk tanggal tertentu.</div>
-  <label class="flbl">PILIH TANGGAL</label>
-  <input class="inp" id="w-date" type="date"/>
-  <button class="btn prim" onclick="doWeton()" style="margin-bottom:14px"><span>🔍</span><span>Cari Weton</span></button>
-  <div id="w-result" style="display:none">
-    <div class="wcard">
-      <div class="wlbl" id="w-lbl">—</div>
-      <div class="wmain" id="w-main">—</div>
-      <div class="wsub" id="w-wuku">Wuku: —</div>
+  <!-- ==================== TAB: WETON ==================== -->
+  <div id="tab-weton" class="content">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+      Cari hari pasaran (weton) untuk tanggal tertentu.
     </div>
-    <hr/>
-    <div class="sec">Tambah ke Google Kalender</div>
-    <label class="flbl">NAMA EVENT</label>
-    <input class="inp" id="ev3" type="text" value="Peringatan Weton" placeholder="Nama event..."/>
-    <button class="bgoog" onclick="addWeton()"><span>📅</span><span>Tambah ke Google Kalender</span></button>
-    <div class="pbox" id="pb-weton" style="margin-top:10px"><div class="plist" id="pl-weton"></div></div>
-  </div>
-</div>
-
-<!-- TAB: GEBLAK -->
-<div id="tab-geblak" class="content">
-  <div style="font-size:13px;color:var(--t3);margin-bottom:14px;line-height:1.6">
-    Hitung tanggal selamatan: Telung dinane, Pitung dinane, Patang puluh dinane, Nyatus dinane, Pendhak I, Pendhak II, lan Nyewu dinane (1000 hari).
-  </div>
-  <label class="flbl">TANGGAL MENINGGAL</label>
-  <input class="inp" id="g-date" type="date"/>
-  <label class="flbl">NAMA ALMARHUM/ALMARHUMAH (opsional)</label>
-  <input class="inp" id="g-nama" type="text" placeholder="Misal: Mbah Slamet..."/>
-  <button class="btn prim" onclick="doGeblak()" style="margin-bottom:16px"><span>🔍</span><span>Hitung Geblak</span></button>
-
-  <div id="g-result" style="display:none">
-    <div class="sec" id="g-rtitle">Hasil Perhitungan Geblak</div>
-    <div class="gcard" id="g-list"></div>
-    <hr/>
-    <div class="sec">Tambah Semua ke Google Kalender</div>
-    <label class="flbl">PREFIX NAMA EVENT</label>
-    <input class="inp" id="evG" type="text" value="Selamatan" placeholder="Misal: Selamatan Mbah Slamet"/>
-    <button class="bgoog" onclick="addAllGeblak()"><span>📅</span><span>Tambah Semua (8 Event) Langsung ke Kalender</span></button>
-    <div class="pbox show" id="pb-geblak" style="margin-top:10px">
-      <div class="phdr"><span class="ptitle" id="pt-geblak">Siap menambahkan...</span><span class="pcnt" id="pc-geblak"></span></div>
-      <div class="pbar-wrap"><div class="pbar" id="bar-geblak"></div></div>
-      <div class="plist" id="pl-geblak"></div>
-      <div class="psum" id="ps-geblak"></div>
+    <label class="field-label">PILIH TANGGAL</label>
+    <input class="input" id="weton-date" type="date"/>
+    <button class="btn btn-primary" onclick="doSearchWeton()" style="margin-bottom:14px">
+      <span>🔍</span><span>Cari Weton</span>
+    </button>
+    <div id="weton-result" style="display:none">
+      <div class="weton-card">
+        <div class="wc-label" id="weton-date-lbl">—</div>
+        <div class="wc-main" id="weton-main">—</div>
+        <div class="wc-sub" id="weton-wuku">Wuku: —</div>
+      </div>
+      <hr class="divider"/>
+      <div class="sec-title">Tambah ke Google Kalender</div>
+      <div class="gcal-hint">
+        <span>ℹ️</span>
+        <span>Klik tombol di bawah untuk membuka Google Kalender. Pastikan sudah login akun Google.</span>
+      </div>
+      <label class="field-label">NAMA EVENT</label>
+      <input class="input" id="ev-title-3" type="text" value="Peringatan Weton" placeholder="Nama event..."/>
+      <a href="#" target="_blank" rel="noopener" class="btn-gcal" onclick="openWetonGcal(event)">
+        <span>📅</span><span>Buka di Google Kalender</span>
+      </a>
     </div>
   </div>
-</div>
+
+  <!-- ==================== TAB: GEBLAK ==================== -->
+  <div id="tab-geblak" class="content">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+      Hitung tanggal selamatan: Telung dinane, Pitung dinane, Patang puluh dinane, Nyatus dinane, Pendhak I, Pendhak II, lan Nyewu dinane (1000 hari).
+    </div>
+    <label class="field-label">TANGGAL MENINGGAL</label>
+    <input class="input" id="geblak-date" type="date"/>
+    <label class="field-label">NAMA ALMARHUM/ALMARHUMAH (opsional)</label>
+    <input class="input" id="geblak-nama" type="text" placeholder="Misal: Mbah Slamet..."/>
+    <button class="btn btn-primary" onclick="doGeblak()" style="margin-bottom:16px">
+      <span>🔍</span><span>Hitung Geblak</span>
+    </button>
+
+    <div id="geblak-result" style="display:none">
+      <div class="sec-title" id="geblak-result-title">Hasil Perhitungan Geblak</div>
+      <div class="geblak-card" id="geblak-list"></div>
+      <hr class="divider"/>
+      <div class="sec-title">Tambah ke Google Kalender</div>
+      <div class="gcal-hint">
+        <span>ℹ️</span>
+        <span>Pilih event satu per satu atau klik "Tambah Semua" untuk membuka Google Kalender.</span>
+      </div>
+      <label class="field-label">PREFIX NAMA EVENT</label>
+      <input class="input" id="ev-title-geblak" type="text" value="Selamatan" placeholder="Misal: Selamatan Mbah Slamet"/>
+      <button class="btn btn-primary" onclick="openGeblakModal()">
+        <span>📅</span><span>Tambah Semua ke Google Kalender</span>
+      </button>
+    </div>
+  </div>
 
 </div><!-- /app -->
 
-<!-- MODAL SETTINGS -->
-<div class="moverlay" id="m-settings" onclick="closeSets(event)">
-  <div class="msheet" onclick="event.stopPropagation()">
-    <div class="mhead">
-      <span class="mtitle">⚙️ Pengaturan Google Kalender</span>
-      <button class="mclose" onclick="closeSets()">×</button>
+<!-- ==================== MODAL: BULK GCAL ==================== -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title">Tambah ke Google Kalender</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
-    <div class="mbody">
-      <div class="sgrp">
-        <div class="sgt">GOOGLE OAUTH CLIENT ID</div>
-        <div class="shint">Diperlukan agar event bisa ditambahkan langsung ke Google Kalender tanpa buka tab satu per satu. Gratis, ikuti langkah berikut:</div>
-        <div class="sstep"><strong>1.</strong> Buka <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console → Credentials</a></div>
-        <div class="sstep"><strong>2.</strong> Klik <strong>+ Create Credentials → OAuth Client ID</strong> → pilih <strong>Web application</strong></div>
-        <div class="sstep"><strong>3.</strong> Di <strong>Authorised JavaScript origins</strong> tambahkan URL aplikasi Anda (mis: <code>https://nama-app.vercel.app</code> atau <code>http://localhost:8080</code>)</div>
-        <div class="sstep"><strong>4.</strong> Aktifkan <a href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank">Google Calendar API</a> di API Library</div>
-        <div class="sstep"><strong>5.</strong> Copy <strong>Client ID</strong> (format: <code>xxxxxx.apps.googleusercontent.com</code>) dan paste di bawah:</div>
-        <input class="sinp" id="set-cid" type="text" placeholder="xxxxxxxxx.apps.googleusercontent.com" oninput="checkCid()"/>
-        <div id="set-cid-status" style="font-size:11px;margin-bottom:8px;color:var(--t3)"></div>
-        <button class="btn prim" onclick="saveCid()">Simpan Client ID</button>
+    <div class="modal-body">
+      <div class="modal-hint">
+        <span>ℹ️</span>
+        <span>Klik tombol biru di setiap event untuk membukanya di Google Kalender. Pastikan sudah login ke akun Google.</span>
       </div>
-      <div class="sgrp" style="padding-top:14px;border-top:1px solid var(--br)">
-        <div class="sgt">STATUS KONEKSI</div>
-        <div id="set-auth-status" style="font-size:13px;color:var(--t2);margin-bottom:10px">—</div>
-        <button class="btn" id="logout-btn" onclick="doLogout()" style="display:none">Logout Google</button>
-      </div>
-      <div style="padding-top:14px;border-top:1px solid var(--br)">
-        <div class="sgt">CATATAN</div>
-        <div style="font-size:12px;color:var(--t3);line-height:1.6">Tanpa Client ID, semua tombol tetap berfungsi dengan membuka Google Kalender di tab baru. Dengan Client ID + Login, event ditambahkan langsung di background tanpa buka tab apapun.</div>
-      </div>
+      <div class="modal-event-list" id="modal-event-list"></div>
+      <button class="btn-gcal modal-open-all" id="modal-open-all-btn">
+        <span>📅</span><span id="modal-open-all-text">Buka Semua di Google Kalender</span>
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-/* ---- CONSTANTS ---- */
-const PAS  = ['Pon','Wage','Kliwon','Legi','Pahing'];
-const DINO = ['Minggu','Senen','Seloso','Rebo','Kemis','Jemuwah','Septu'];
-const PCLR = {Pon:'#BA7517',Wage:'#3B6D11',Kliwon:'#993556',Legi:'#185FA5',Pahing:'#993C1D'};
-const WUKU = ["Sinto","Landep","Wukir","Kurantil","Tolu","Gumbrek","Warigalit","Warigagung","Julungwangi","Sungsang","Galungan","Kuningan","Langkir","Mondisijo","Julungpujut","Pahang","Kuruwekut","Marakeh","Tambir","Medangkungan","Maktal","Waye","Menahil","Prangbakat","Bolo","Wugu","Wayang","Kulawu","Dukut","Watagunung"];
-const GBL  = [
-  {label:'Geblake',             sub:'Hari meninggal',          days:0},
-  {label:'Telung dinane',       sub:'3 hari',                  days:3},
-  {label:'Pitung dinane',       sub:'7 hari',                  days:7},
-  {label:'Patang puluh dinane', sub:'40 hari',                 days:40},
-  {label:'Nyatus dinane',       sub:'100 hari',                days:100},
-  {label:'Pendhak I dinane',    sub:'354 hari (1 tahun Jawa)', days:354},
-  {label:'Pendhak II dinane',   sub:'708 hari (2 tahun Jawa)', days:708},
-  {label:'Nyewu dinane',        sub:'1000 hari',               days:1000},
+/* ======================================================
+   CONSTANTS — algorithm dari pasaran.py & weton.py
+   ====================================================== */
+const PASARAN  = ['Pon','Wage','Kliwon','Legi','Pahing'];
+const DINO     = ['Minggu','Senen','Seloso','Rebo','Kemis','Jemuwah','Septu'];
+const PAS_CLR  = {Pon:'#BA7517',Wage:'#3B6D11',Kliwon:'#993556',Legi:'#185FA5',Pahing:'#993C1D'};
+const WUKU     = [
+  "Sinto","Landep","Wukir","Kurantil","Tolu","Gumbrek","Warigalit","Warigagung",
+  "Julungwangi","Sungsang","Galungan","Kuningan","Langkir","Mondisijo",
+  "Julungpujut","Pahang","Kuruwekut","Marakeh","Tambir","Medangkungan",
+  "Maktal","Waye","Menahil","Prangbakat","Bolo","Wugu","Wayang","Kulawu",
+  "Dukut","Watagunung"
 ];
-const DB   = new Date(Date.UTC(1800,0,1));
-const WB   = new Date(Date.UTC(2000,4,21));
-const WMAP = {minggu:0,senen:1,seloso:2,rebo:3,kemis:4,jemuwah:5,septu:6};
-const PMAP = {pon:0,wage:1,kliwon:2,legi:3,pahing:4};
-const GCAPI= 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
-const SCOPE= 'https://www.googleapis.com/auth/calendar.events';
+const GEBLAKS  = [
+  {label:'Geblake',             sublabel:'Hari meninggal',          days:0},
+  {label:'Telung dinane',       sublabel:'3 hari',                  days:3},
+  {label:'Pitung dinane',       sublabel:'7 hari',                  days:7},
+  {label:'Patang puluh dinane', sublabel:'40 hari',                 days:40},
+  {label:'Nyatus dinane',       sublabel:'100 hari',                days:100},
+  {label:'Pendhak I dinane',    sublabel:'354 hari (1 tahun Jawa)', days:354},
+  {label:'Pendhak II dinane',   sublabel:'708 hari (2 tahun Jawa)', days:708},
+  {label:'Nyewu dinane',        sublabel:'1000 hari',               days:1000},
+];
+const DATE_BASE = new Date(Date.UTC(1800,0,1));
+const WUKU_BASE = new Date(Date.UTC(2000,4,21));
+const WEEK_MAP  = {minggu:0,senen:1,seloso:2,rebo:3,kemis:4,jemuwah:5,septu:6};
+const PAS_MAP   = {pon:0,wage:1,kliwon:2,legi:3,pahing:4};
 
-/* ---- ALGORITHM ---- */
-function pi(d){const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));return(((Math.floor((u-DB)/864e5))%5)+5)%5;}
-function wk(d){const u=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));return WUKU[Math.floor((((Math.floor((u-WB)/864e5))%210)+210)%210/7)];}
-function weton(d){const p=pi(d);return{dino:DINO[d.getDay()],pas:PAS[p],wuku:wk(d)};}
-function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function iso(d){return d.toISOString().split('T')[0];}
-function fmtL(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
-function fmtS(d){return d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+/* ======================================================
+   CORE ALGORITHM
+   ====================================================== */
+function getPasIdx(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  return (((Math.floor((d-DATE_BASE)/86400000)) % 5) + 5) % 5;
+}
+function getWuku(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  return WUKU[Math.floor((((Math.floor((d-WUKU_BASE)/86400000))%210)+210)%210 / 7)];
+}
+function getWeton(date) {
+  const pIdx = getPasIdx(date);
+  return {dino:DINO[date.getDay()], pas:PASARAN[pIdx], wuku:getWuku(date), pIdx};
+}
+function addDays(date,n){ const d=new Date(date); d.setDate(d.getDate()+n); return d; }
+function isoDate(d){ return d.toISOString().split('T')[0]; }
+function fmtDate(d){ return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }
+function fmtShort(d){ return d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}); }
 
-/* ---- GCAL FALLBACK URL ---- */
-function gurl(title,isoStr,det){
-  const d=new Date(isoStr),e=addD(d,1),f=x=>x.toISOString().replace(/-/g,'').split('T')[0];
-  return'https://calendar.google.com/calendar/render?'+new URLSearchParams({action:'TEMPLATE',text:title,dates:f(d)+'/'+f(e),details:det||''});
-}
-
-/* ---- STATE ---- */
-let cY=new Date().getFullYear(),cM=new Date().getMonth();
-let selDates=[],srDates=[],gblDates=[];
-let _tok=null,_tc=null,_cid='';
-let _tIso='',_tW={},_weIso='',_weW={};
-
-/* ---- OAUTH ---- */
-function loadCid(){_cid=window._GCAL_CLIENT_ID||'';document.getElementById('set-cid').value=_cid;updateAuth();}
-function checkCid(){const v=document.getElementById('set-cid').value.trim();document.getElementById('set-cid-status').textContent=v?(v.includes('.apps.googleusercontent.com')?'✅ Format valid':'⚠️ Harus diakhiri .apps.googleusercontent.com'):''}
-function saveCid(){
-  const v=document.getElementById('set-cid').value.trim();
-  if(!v){alert('Masukkan Client ID dulu!');return;}
-  _cid=v;window._GCAL_CLIENT_ID=v;_tc=null;_tok=null;
-  updateAuth();alert('Client ID tersimpan! Klik "Login Google" di header.');closeSets();
-}
-function initTC(){
-  if(!window.google||!window.google.accounts||!_cid)return;
-  _tc=google.accounts.oauth2.initTokenClient({client_id:_cid,scope:SCOPE,callback:r=>{
-    if(r.error){alert('Login gagal: '+r.error);return;}
-    _tok=r.access_token;updateAuth();
-  }});
-}
-function handleAuthClick(){
-  if(_tok)return;
-  if(!_cid){openSettings();return;}
-  if(!_tc)initTC();
-  if(_tc)_tc.requestAccessToken({prompt:'consent'});
-  else alert('Google Identity Services belum siap.');
-}
-function doLogout(){
-  if(_tok&&window.google)google.accounts.oauth2.revoke(_tok,()=>{});
-  _tok=null;updateAuth();
-}
-function updateAuth(){
-  const pill=document.getElementById('auth-pill'),txt=document.getElementById('auth-txt');
-  const ast=document.getElementById('set-auth-status'),alb=document.getElementById('logout-btn');
-  if(_tok){
-    pill.className='auth-pill on';txt.textContent='✓ Terhubung Google';
-    ast.innerHTML='<span style="color:#1e7e34;font-weight:600">✅ Login aktif.</span> Event ditambahkan langsung ke kalender.';
-    alb.style.display='flex';
-  }else{
-    pill.className='auth-pill';txt.textContent=_cid?'Login Google':'Setup Dulu';
-    ast.innerHTML=_cid?'⚠️ Belum login. Klik <strong>Login Google</strong> di header.':'❌ Client ID belum diatur.';
-    alb.style.display='none';
-  }
-}
-
-/* ---- ADD TO CALENDAR (API or fallback) ---- */
-async function apiCreate(title,isoStr,det){
-  const e=addD(new Date(isoStr),1);
-  const r=await fetch(GCAPI,{
-    method:'POST',
-    headers:{'Authorization':'Bearer '+_tok,'Content-Type':'application/json'},
-    body:JSON.stringify({summary:title,description:det||'',start:{date:isoStr},end:{date:iso(e)}})
+/* ======================================================
+   GOOGLE CALENDAR URL BUILDER
+   Format all-day: dates=YYYYMMDD/YYYYMMDD+1
+   ====================================================== */
+function gcalUrl(title, isoStr, details) {
+  const d   = new Date(isoStr);
+  const end = addDays(d, 1);
+  const fmt = dt => dt.toISOString().replace(/-/g,'').split('T')[0];
+  const p   = new URLSearchParams({
+    action  : 'TEMPLATE',
+    text    : title,
+    dates   : fmt(d) + '/' + fmt(end),
+    details : details || '',
+    trp     : 'false'
   });
-  if(!r.ok){const e2=await r.json();if(r.status===401){_tok=null;updateAuth();}throw new Error(e2.error?.message||'Gagal');}
-  return r.json();
+  return 'https://calendar.google.com/calendar/render?' + p.toString();
+}
+function openGcal(title, isoStr, details) {
+  window.open(gcalUrl(title, isoStr, details), '_blank', 'noopener');
 }
 
-// events: [{title,iso,det,name}]
-// prog: {box,plist,ptitle?,pbar?,pcnt?,psum?}
-async function addEvents(events,prog){
-  const box=document.getElementById(prog.box);
-  const pl=document.getElementById(prog.plist);
-  const pt=prog.ptitle?document.getElementById(prog.ptitle):null;
-  const pb=prog.pbar?document.getElementById(prog.pbar):null;
-  const pc=prog.pcnt?document.getElementById(prog.pcnt):null;
-  const ps=prog.psum?document.getElementById(prog.psum):null;
+/* ======================================================
+   STATE
+   ====================================================== */
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selectedDates = [];
+let searchResultDates = [];
+let geblakDates = [];
+window._todayIso   = '';
+window._todayWeton = {};
+window._wetonIso   = '';
+window._wetonW     = {};
+let _modalEvents = [];  // [{title, iso, weton}]
 
-  box.classList.add('show');
-  if(pt)pt.textContent='Menambahkan event...';
-  if(pb)pb.style.width='0%';
-  if(ps)ps.classList.remove('show');
-
-  pl.innerHTML=events.map((ev,i)=>`
-    <div class="pitem" id="pi${prog.box}${i}">
-      <span class="pico">⏳</span>
-      <span class="pname">${ev.name||ev.title}</span>
-      <span class="pstat" id="ps${prog.box}${i}">Menunggu...</span>
-    </div>`).join('');
-
-  let ok=0,fail=0;
-  for(let i=0;i<events.length;i++){
-    const ev=events[i];
-    const ico=document.querySelector(`#pi${prog.box}${i} .pico`);
-    const st=document.getElementById(`ps${prog.box}${i}`);
-    if(ico)ico.textContent='⏳';
-    if(st)st.textContent='Menambahkan...';
-    if(pc)pc.textContent=`${i+1}/${events.length}`;
-    try{
-      if(_tok){
-        await apiCreate(ev.title,ev.iso,ev.det||'');
-        if(ico)ico.textContent='✅';
-        if(st){st.textContent='Berhasil';st.style.color='#1e7e34';}
-        ok++;
-      }else{
-        // Fallback: buka tab
-        window.open(gurl(ev.title,ev.iso,ev.det||''),'_blank','noopener');
-        if(ico)ico.textContent='↗️';
-        if(st){st.textContent='Tab dibuka';st.style.color='#1557b0';}
-        ok++;
-        await sleep(380);
-      }
-    }catch(e){
-      if(ico)ico.textContent='❌';
-      if(st){st.textContent='Gagal';st.style.color='#c0392b';}
-      fail++;
-    }
-    if(pb)pb.style.width=Math.round(((i+1)/events.length)*100)+'%';
-  }
-  if(pt)pt.textContent='Selesai!';
-  if(ps){
-    const mode=_tok?'ditambahkan langsung':'tab dibuka';
-    ps.innerHTML=`✅ <strong>${ok}/${events.length}</strong> event berhasil ${mode}`+(fail?` · <span style="color:#c0392b">${fail} gagal</span>`:'');
-    ps.classList.add('show');
-  }
+/* ======================================================
+   INIT HARI INI
+   ====================================================== */
+function initHariIni() {
+  const now    = new Date();
+  const isMalem= now.getHours() >= 18;
+  const disp   = isMalem ? addDays(now,1) : now;
+  const w      = getWeton(disp);
+  document.getElementById('malem-badge').classList.toggle('show', isMalem);
+  document.getElementById('today-label').textContent   = isMalem ? 'Malem ini' : 'Hari ini';
+  const wt = document.getElementById('today-weton');
+  wt.textContent = w.dino + ' ' + w.pas;
+  wt.style.color = PAS_CLR[w.pas];
+  document.getElementById('today-wuku').textContent    = 'Wuku: ' + w.wuku;
+  document.getElementById('today-hari').textContent    = disp.toLocaleDateString('id-ID',{weekday:'long'});
+  const pb = document.getElementById('today-pas');
+  pb.textContent = w.pas; pb.style.color = PAS_CLR[w.pas];
+  document.getElementById('today-tanggal').textContent = fmtDate(disp);
+  window._todayIso   = isoDate(disp);
+  window._todayWeton = w;
 }
 
-/* ---- INIT HARI INI ---- */
-function initHari(){
-  const now=new Date(),mal=now.getHours()>=18;
-  const d=mal?addD(now,1):now,w=weton(d);
-  document.getElementById('malem').classList.toggle('show',mal);
-  document.getElementById('t-lbl').textContent=mal?'Malem ini':'Hari ini';
-  const el=document.getElementById('t-weton');el.textContent=w.dino+' '+w.pas;el.style.color=PCLR[w.pas];
-  document.getElementById('t-wuku').textContent='Wuku: '+w.wuku;
-  document.getElementById('t-hari').textContent=d.toLocaleDateString('id-ID',{weekday:'long'});
-  const pe=document.getElementById('t-pas');pe.textContent=w.pas;pe.style.color=PCLR[w.pas];
-  document.getElementById('t-tgl').textContent=fmtL(d);
-  _tIso=iso(d);_tW=w;
-}
-async function addHariIni(){
-  const title=document.getElementById('ev1').value||'Pasaran Jawa';
-  await addEvents([{title:`${title} (${_tW.dino} ${_tW.pas})`,iso:_tIso,det:`Hari Jawa: ${_tW.dino} ${_tW.pas} | Wuku: ${_tW.wuku}`,name:`${title} (${_tW.dino} ${_tW.pas})`}],
-    {box:'pb-hi',plist:'pl-hi'});
-}
-
-/* ---- TABS ---- */
-function switchTab(id,el){
+/* ======================================================
+   TABS
+   ====================================================== */
+function switchTab(id, el) {
   document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   el.classList.add('active');
-  if(id==='kal')renderCal();
+  if (id==='kalender') renderCalendar();
 }
 
-/* ---- CALENDAR ---- */
-function renderCal(){
-  document.getElementById('cal-lbl').textContent=new Date(cY,cM).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
-  const fd=new Date(cY,cM,1).getDay(),days=new Date(cY,cM+1,0).getDate(),today=new Date();
-  let h='';
-  for(let i=0;i<fd;i++)h+='<div></div>';
-  for(let d=1;d<=days;d++){
-    const dt=new Date(cY,cM,d),w=weton(dt),it=dt.toDateString()===today.toDateString(),s=iso(dt);
-    h+=`<div class="cc${it?' today':''}" onclick="calClick('${s}','${w.dino}','${w.pas}','${w.wuku}')">
-      <div class="cn${it?' tn':''}">${d}</div>
-      <div class="cp" style="color:${PCLR[w.pas]}">${w.pas}</div>
+/* ======================================================
+   SINGLE GCAL OPENERS
+   ====================================================== */
+function openSingleGcal(titleInputId, isoKey, wetonKey, e) {
+  e.preventDefault();
+  const title = document.getElementById(titleInputId).value || 'Pasaran Jawa';
+  const iso   = window[isoKey];
+  const w     = window[wetonKey];
+  const detail= `Hari Jawa: ${w.dino} ${w.pas} | Wuku: ${w.wuku}`;
+  openGcal(title + ` (${w.dino} ${w.pas})`, iso, detail);
+}
+function openWetonGcal(e) {
+  e.preventDefault();
+  const title  = document.getElementById('ev-title-3').value || 'Weton';
+  const w      = window._wetonW;
+  const detail = `Hari Jawa: ${w.dino} ${w.pas} | Wuku: ${w.wuku}`;
+  openGcal(title + ` (${w.dino} ${w.pas})`, window._wetonIso, detail);
+}
+
+/* ======================================================
+   CALENDAR
+   ====================================================== */
+function renderCalendar() {
+  const label = new Date(calYear,calMonth).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  document.getElementById('cal-month-label').textContent = label;
+  const firstDay = new Date(calYear,calMonth,1).getDay();
+  const days     = new Date(calYear,calMonth+1,0).getDate();
+  const today    = new Date();
+  let html = '';
+  for (let i=0;i<firstDay;i++) html+='<div></div>';
+  for (let d=1;d<=days;d++) {
+    const date  = new Date(calYear,calMonth,d);
+    const w     = getWeton(date);
+    const isT   = date.toDateString()===today.toDateString();
+    const iso   = isoDate(date);
+    html += `<div class="cal-cell${isT?' today':''}" onclick="calClick('${iso}','${w.dino}','${w.pas}','${w.wuku}')">
+      <div class="cal-num${isT?' today-num':''}">${d}</div>
+      <div class="cal-pas" style="color:${PAS_CLR[w.pas]}">${w.pas}</div>
     </div>`;
   }
-  document.getElementById('cal-grid').innerHTML=h;
-  document.getElementById('leg').innerHTML=PAS.map(p=>`<span class="legpill" style="color:${PCLR[p]}">${p}</span>`).join('');
+  document.getElementById('cal-grid').innerHTML = html;
+  document.getElementById('legend-items').innerHTML =
+    PASARAN.map(p=>`<span class="legend-pill" style="color:${PAS_CLR[p]}">${p}</span>`).join('');
 }
-function calPrev(){if(cM===0){cM=11;cY--;}else cM--;renderCal();}
-function calNext(){if(cM===11){cM=0;cY++;}else cM++;renderCal();}
-async function calClick(s,dino,pas,wuku){
-  await addEvents([{title:`Pasaran ${dino} ${pas}`,iso:s,det:`Hari Jawa: ${dino} ${pas} | Wuku: ${wuku}`,name:`Pasaran ${dino} ${pas}`}],
-    {box:'pb-kal',plist:'pl-kal'});
+function calPrev(){if(calMonth===0){calMonth=11;calYear--;}else calMonth--;renderCalendar();}
+function calNext(){if(calMonth===11){calMonth=0;calYear++;}else calMonth++;renderCalendar();}
+function calClick(iso, dino, pas, wuku) {
+  const title  = `Pasaran ${dino} ${pas}`;
+  const detail = `Hari Jawa: ${dino} ${pas} | Wuku: ${wuku}`;
+  openGcal(title, iso, detail);
 }
 
-/* ---- CARI PASARAN ---- */
-function doSearch(){
-  const day=document.getElementById('s-day').value,pas=document.getElementById('s-pas').value;
-  const year=parseInt(document.getElementById('s-year').value);
-  const td=WMAP[day],tp=PMAP[pas];
-  const res=[];let d=new Date(year,0,1);
-  while(d.getDay()!==td)d=addD(d,1);
-  while(d.getFullYear()===year){if(pi(d)===tp)res.push(new Date(d));d=addD(d,7);}
-  srDates=res;selDates=[];
-  document.getElementById('s-results').style.display='block';
-  document.getElementById('r-cnt').textContent=res.length+' tanggal ditemukan';
-  document.getElementById('r-list').innerHTML=res.map(d=>{
-    const w=weton(d),s=iso(d),sel=selDates.includes(s);
-    return`<div class="ritem${sel?' sel':''}" onclick="togSel('${s}')">
-      <div><div class="rdate">${fmtL(d)}</div><div class="rweton" style="color:${PCLR[w.pas]}">${w.dino} ${w.pas}</div></div>
-      <div class="chk${sel?' on':''}">${sel?'✓':''}</div>
+/* ======================================================
+   CARI PASARAN
+   ====================================================== */
+function doSearchPasaran() {
+  const day  = document.getElementById('search-day').value;
+  const pas  = document.getElementById('search-pas').value;
+  const year = parseInt(document.getElementById('search-year').value);
+  const td   = WEEK_MAP[day];
+  const tp   = PAS_MAP[pas];
+  const res  = [];
+  let d = new Date(year,0,1);
+  while (d.getDay()!==td) d=addDays(d,1);
+  while (d.getFullYear()===year){
+    if (getPasIdx(d)===tp) res.push(new Date(d));
+    d=addDays(d,7);
+  }
+  searchResultDates = res;
+  selectedDates = [];
+  renderResults();
+}
+function renderResults() {
+  const container = document.getElementById('search-results');
+  container.style.display = 'block';
+  document.getElementById('results-count').textContent = searchResultDates.length+' tanggal ditemukan';
+  document.getElementById('results-list').innerHTML = searchResultDates.map(d=>{
+    const w   = getWeton(d);
+    const iso = isoDate(d);
+    const sel = selectedDates.includes(iso);
+    return `<div class="result-item${sel?' sel':''}" onclick="toggleSelect('${iso}',this)">
+      <div>
+        <div class="r-date">${fmtDate(d)}</div>
+        <div class="r-weton" style="color:${PAS_CLR[w.pas]}">${w.dino} ${w.pas}</div>
+      </div>
+      <div class="checkbox${sel?' chk':''}">${sel?'✓':''}</div>
     </div>`;
   }).join('');
-  document.getElementById('bulk-area').style.display='none';
-  document.getElementById('pb-cari').classList.remove('show');
+  const ba = document.getElementById('bulk-add-area');
+  ba.style.display = selectedDates.length>0 ? 'block' : 'none';
+  const bt = document.getElementById('bulk-btn-text');
+  if (bt) bt.textContent = `Tambah ${selectedDates.length} Event ke Google Kalender`;
 }
-function togSel(s){
-  if(selDates.includes(s))selDates=selDates.filter(x=>x!==s);else selDates.push(s);
-  document.getElementById('r-list').innerHTML=srDates.map(d=>{
-    const w=weton(d),si=iso(d),sel=selDates.includes(si);
-    return`<div class="ritem${sel?' sel':''}" onclick="togSel('${si}')">
-      <div><div class="rdate">${fmtL(d)}</div><div class="rweton" style="color:${PCLR[w.pas]}">${w.dino} ${w.pas}</div></div>
-      <div class="chk${sel?' on':''}">${sel?'✓':''}</div>
-    </div>`;
-  }).join('');
-  const ba=document.getElementById('bulk-area');
-  ba.style.display=selDates.length>0?'block':'none';
-  const bt=document.getElementById('bulk-txt');
-  if(bt)bt.textContent=`Tambah ${selDates.length} Event Langsung ke Kalender`;
+function toggleSelect(iso){
+  if (selectedDates.includes(iso)) selectedDates=selectedDates.filter(x=>x!==iso);
+  else selectedDates.push(iso);
+  renderResults();
 }
-function selAll(){selDates=srDates.map(d=>iso(d));togSel('__NONE__');}
-async function addBulk(){
-  if(!selDates.length){alert('Pilih tanggal dulu!');return;}
-  const base=document.getElementById('ev2').value||'Pasaran Jawa';
-  const evs=selDates.map(s=>{const d=new Date(s),w=weton(d);return{title:`${base} (${w.dino} ${w.pas})`,iso:s,det:`Hari Jawa: ${w.dino} ${w.pas}`,name:`${fmtS(d)} — ${w.dino} ${w.pas}`};});
-  await addEvents(evs,{box:'pb-cari',plist:'pl-cari',ptitle:'pt-cari',pbar:'bar-cari',pcnt:'pc-cari',psum:'ps-cari'});
+function selectAll(){
+  selectedDates=searchResultDates.map(d=>isoDate(d));
+  renderResults();
 }
-
-/* ---- WETON ---- */
-function doWeton(){
-  const val=document.getElementById('w-date').value;if(!val)return;
-  const d=new Date(val),w=weton(d);_weIso=val;_weW=w;
-  document.getElementById('w-lbl').textContent=fmtL(d);
-  const m=document.getElementById('w-main');m.textContent=w.dino+' '+w.pas;m.style.color=PCLR[w.pas];
-  document.getElementById('w-wuku').textContent='Wuku: '+w.wuku;
-  document.getElementById('w-result').style.display='block';
-}
-async function addWeton(){
-  const t=document.getElementById('ev3').value||'Weton',w=_weW;
-  await addEvents([{title:`${t} (${w.dino} ${w.pas})`,iso:_weIso,det:`Hari Jawa: ${w.dino} ${w.pas} | Wuku: ${w.wuku}`,name:`${t} (${w.dino} ${w.pas})`}],
-    {box:'pb-weton',plist:'pl-weton'});
+function openBulkModal() {
+  if (!selectedDates.length){ alert('Pilih tanggal dulu!'); return; }
+  const baseTitle = document.getElementById('ev-title-2').value || 'Pasaran Jawa';
+  const events = selectedDates.map(iso=>{
+    const d = new Date(iso);
+    const w = getWeton(d);
+    return {
+      title : `${baseTitle} (${w.dino} ${w.pas})`,
+      iso   : iso,
+      date  : d,
+      weton : w,
+      detail: `Hari Jawa: ${w.dino} ${w.pas}`
+    };
+  });
+  showModal(`${events.length} Event Pasaran → Google Kalender`, events);
 }
 
-/* ---- GEBLAK ---- */
-function doGeblak(){
-  const val=document.getElementById('g-date').value;if(!val)return;
-  const nama=document.getElementById('g-nama').value.trim();
-  const base=new Date(val);
-  gblDates=GBL.map(g=>{const d=addD(base,g.days),w=weton(d);return{iso:iso(d),label:g.label,sub:g.sub,days:g.days,date:d,w};});
-  if(nama)document.getElementById('evG').value=`Selamatan ${nama}`;
-  document.getElementById('g-rtitle').textContent=nama?`Hasil Geblak: Almarhum/ah ${nama}`:'Hasil Perhitungan Geblak';
-  const pfx=document.getElementById('evG').value||'Selamatan';
-  document.getElementById('g-list').innerHTML=gblDates.map((g,i)=>{
-    const ih=i===0;
-    const u=gurl(`${pfx} — ${g.label} (${g.w.dino} ${g.w.pas})`,g.iso,'Selamatan '+g.label);
-    return`<div class="grow${ih?' gh':''}">
-      <div class="gl"><div class="gname">${g.label}</div><div class="gdays">${g.sub}</div></div>
-      <div class="gr">
-        <div><div class="gdt">${fmtS(g.date)}</div><div class="gwt" style="color:${PCLR[g.w.pas]}">${g.w.dino} ${g.w.pas}</div></div>
-        ${!ih?`<a href="${u}" target="_blank" rel="noopener" class="bgoog-sm" onclick="oneGeblak('${g.iso}','${g.label}','${g.w.dino} ${g.w.pas}',event)">📅</a>`:''}
+/* ======================================================
+   WETON
+   ====================================================== */
+function doSearchWeton() {
+  const val = document.getElementById('weton-date').value;
+  if (!val) return;
+  const d = new Date(val);
+  const w = getWeton(d);
+  window._wetonIso = val;
+  window._wetonW   = w;
+  document.getElementById('weton-date-lbl').textContent = fmtDate(d);
+  const wm = document.getElementById('weton-main');
+  wm.textContent = w.dino+' '+w.pas; wm.style.color = PAS_CLR[w.pas];
+  document.getElementById('weton-wuku').textContent = 'Wuku: '+w.wuku;
+  document.getElementById('weton-result').style.display = 'block';
+}
+
+/* ======================================================
+   GEBLAK
+   ====================================================== */
+function doGeblak() {
+  const val  = document.getElementById('geblak-date').value;
+  if (!val) return;
+  const nama     = document.getElementById('geblak-nama').value.trim();
+  const baseDate = new Date(val);
+  geblakDates = GEBLAKS.map(g=>{
+    const d = addDays(baseDate, g.days);
+    const w = getWeton(d);
+    return {iso:isoDate(d), label:g.label, sublabel:g.sublabel, days:g.days, date:d, weton:w};
+  });
+  if (nama) document.getElementById('ev-title-geblak').value = `Selamatan ${nama}`;
+  document.getElementById('geblak-result-title').textContent =
+    nama ? `Hasil Geblak: Almarhum/ah ${nama}` : 'Hasil Perhitungan Geblak';
+
+  document.getElementById('geblak-list').innerHTML = geblakDates.map((g,i)=>{
+    const isHead = i===0;
+    const prefix = document.getElementById('ev-title-geblak').value || 'Selamatan';
+    const gcUrl  = gcalUrl(
+      `${prefix} — ${g.label} (${g.weton.dino} ${g.weton.pas})`,
+      g.iso,
+      `Selamatan ${g.label}`
+    );
+    return `<div class="geblak-row${isHead?' g-head':''}">
+      <div class="geblak-left">
+        <div class="geblak-name">${g.label}</div>
+        <div class="geblak-days">${g.sublabel}</div>
+      </div>
+      <div class="geblak-right">
+        <div>
+          <div class="geblak-date">${fmtShort(g.date)}</div>
+          <div class="geblak-weton" style="color:${PAS_CLR[g.weton.pas]}">${g.weton.dino} ${g.weton.pas}</div>
+        </div>
+        ${!isHead ? `<a href="${gcUrl}" target="_blank" rel="noopener" class="btn-gcal-sm" title="Tambah ke Google Kalender">📅</a>` : ''}
       </div>
     </div>`;
   }).join('');
-  document.getElementById('pl-geblak').innerHTML='';
-  document.getElementById('bar-geblak').style.width='0';
-  document.getElementById('ps-geblak').classList.remove('show');
-  document.getElementById('pt-geblak').textContent='Siap menambahkan...';
-  document.getElementById('g-result').style.display='block';
+
+  document.getElementById('geblak-result').style.display = 'block';
 }
-async function oneGeblak(isoStr,label,wtn,ev){
-  if(_tok){ev.preventDefault();
-    const pfx=document.getElementById('evG').value||'Selamatan';
-    await addEvents([{title:`${pfx} — ${label} (${wtn})`,iso:isoStr,det:`Selamatan ${label}`,name:`${label} (${wtn})`}],
-      {box:'pb-geblak',plist:'pl-geblak',ptitle:'pt-geblak',pbar:'bar-geblak',pcnt:'pc-geblak',psum:'ps-geblak'});
+function openGeblakModal() {
+  if (!geblakDates.length) return;
+  const prefix = document.getElementById('ev-title-geblak').value || 'Selamatan';
+  const events = geblakDates.map(g=>({
+    title  : `${prefix} — ${g.label} (${g.weton.dino} ${g.weton.pas})`,
+    iso    : g.iso,
+    date   : g.date,
+    weton  : g.weton,
+    detail : `Selamatan ${g.label}`
+  }));
+  showModal(`${events.length} Event Selamatan → Google Kalender`, events);
+}
+
+/* ======================================================
+   MODAL
+   ====================================================== */
+function showModal(title, events) {
+  _modalEvents = events;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-event-list').innerHTML = events.map((ev,i)=>{
+    const url = gcalUrl(ev.title, ev.iso, ev.detail||'');
+    return `<div class="modal-event-item">
+      <div class="mev-info">
+        <div class="mev-title">${ev.title}</div>
+        <div class="mev-date">${fmtDate(ev.date)}</div>
+        <div class="mev-weton" style="color:${PAS_CLR[ev.weton.pas]}">${ev.weton.dino} ${ev.weton.pas}</div>
+      </div>
+      <a href="${url}" target="_blank" rel="noopener" class="btn-gcal-sm">📅 Tambah</a>
+    </div>`;
+  }).join('');
+  document.getElementById('modal-open-all-text').textContent =
+    `Buka Semua (${events.length}) di Tab Baru`;
+  document.getElementById('modal-open-all-btn').onclick = openAllInTabs;
+  document.getElementById('modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(e) {
+  if (!e || e.target===document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('show');
+    document.body.style.overflow = '';
   }
 }
-async function addAllGeblak(){
-  if(!gblDates.length)return;
-  const pfx=document.getElementById('evG').value||'Selamatan';
-  const evs=gblDates.map(g=>({
-    title:`${pfx} — ${g.label} (${g.w.dino} ${g.w.pas})`,
-    iso:g.iso,det:`Selamatan ${g.label}`,
-    name:`${g.label} (${g.w.dino} ${g.w.pas})`
-  }));
-  await addEvents(evs,{box:'pb-geblak',plist:'pl-geblak',ptitle:'pt-geblak',pbar:'bar-geblak',pcnt:'pc-geblak',psum:'ps-geblak'});
+function openAllInTabs() {
+  _modalEvents.forEach((ev,i)=>{
+    setTimeout(()=>window.open(gcalUrl(ev.title,ev.iso,ev.detail||''),'_blank','noopener'), i*300);
+  });
 }
 
-/* ---- SETTINGS MODAL ---- */
-function openSettings(){document.getElementById('set-cid').value=_cid;updateAuth();document.getElementById('m-settings').classList.add('show');document.body.style.overflow='hidden';}
-function closeSets(e){if(!e||e.target===document.getElementById('m-settings')){document.getElementById('m-settings').classList.remove('show');document.body.style.overflow='';}}
-
-/* ---- BOOT ---- */
-initHari();
-loadCid();
-window.addEventListener('load',()=>{
-  const chk=setInterval(()=>{if(window.google&&window.google.accounts){clearInterval(chk);if(_cid)initTC();}},300);
-});
+/* ======================================================
+   BOOT
+   ====================================================== */
+initHariIni();
 </script>
 </body>
 </html>
