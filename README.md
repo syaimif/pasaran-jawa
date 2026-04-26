@@ -61,10 +61,6 @@ npx serve .
 python3 -m http.server 8080
 ```
 
-## 🔗 Google Kalender
-
-Aplikasi menggunakan Anthropic API + Google Calendar MCP untuk menambahkan event. Pastikan Google Calendar sudah terkoneksi di claude.ai.
-
 ## 📄 Lisensi
 
 MIT — silakan digunakan dan dikembangkan bebas.
