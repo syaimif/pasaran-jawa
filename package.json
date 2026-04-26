@@ -1,0 +1,13 @@
+{
+  "name": "pasaran-jawa",
+  "version": "1.0.0",
+  "description": "Kalender Pasaran Jawa - Weton, Geblak, Google Kalender",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": ["pasaran","weton","jawa","kalender","geblak"],
+  "author": "",
+  "license": "MIT"
+}
